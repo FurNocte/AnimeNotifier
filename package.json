@@ -11,6 +11,7 @@
   "dependencies": {
     "jsonfile": "^2.3.1",
     "p-promise": "^0.5.0",
+    "rsj": "0.0.4",
     "underscore": "^1.8.3"
   }
 }

@@ -3,7 +3,6 @@ var jsonfile = require('jsonfile');
 var P = require('p-promise');
 var _ = require('underscore');
 
-var mal = require('./listMAL.js');
 var adkami = require('./adkami.js');
 
 animes = {};
