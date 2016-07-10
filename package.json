@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "jsonfile": "^2.3.1",
-    "p-promise": "^0.5.0"
+    "p-promise": "^0.5.0",
+    "underscore": "^1.8.3"
   }
 }

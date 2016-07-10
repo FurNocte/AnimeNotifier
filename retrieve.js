@@ -1,29 +1,68 @@
 var https = require('https');
 var jsonfile = require('jsonfile');
 var P = require('p-promise');
+var _ = require('underscore');
+
+var mal = require('./listMAL.js');
 var adkami = require('./adkami.js');
 
-var animes = {};
-var config = {};
-jsonfile.readFile('./config.json', function(err, obj) {
-    if (err)
-        console.log(err); 
-    else
-        config = obj;
+animes = {};
+config = {};
+toSend = [];
+
+function init() {
+    var defer = P.defer();
+    readAnimes().fail(function(err) {defer.reject();});
+    jsonfile.readFile('./config.json', function(err, obj) {
+        if (err)
+            defer.reject(err);
+        else {
+            config = obj;
+            defer.resolve();
+        }
+    });
+    return defer.promise;
+}
+
+init().then(function() {
+    var defer = P.defer();
+    adkami.main().then(function(list) {
+        for (i in list) {
+            var anime = list[i];
+            if (!containsAnime(anime.name, anime.ep, anime.host))
+                addAnimeEp(anime.name, anime.ep, anime.host);
+        }
+        defer.resolve();
+    });
+    return defer.promise;
+}).then(function() {
+    sendQueue();
+}).fail(function(err) {
+    console.log(err);
 });
 
-sendSMS('Anime Notifier: Monster ep 1 est disponible sur adkami.');
-/*addAnimeEp('Kill la Kill', 1, 'adkami').then(function() {
-    addAnimeEp('Kill la Kill', 2, 'adkami');
-}).then(function() {
-    addAnimeEp('Tokyo Ghoul', 1, 'adkami');
-}).then(function() {
-    addAnimeEp('Tokyo Ghoul', 1, 'nekosan');
-});*/
+function containsAnime(name, ep, host) {
+    for (anime in animes) {
+        if (anime != name)
+            continue;
+        if (_.contains(animes[anime][ep], host))
+            return true;
+        else
+            return false;
+    }
+    return false;
+}
+
+function sendQueue() {
+    var message = 'Anime Notifier:';
+    for (var i in toSend)
+        message = message.concat('\n' + toSend[i].name + ' ep ' + toSend[i].ep + ' on ' + toSend[i].host);
+    sendSMS(message);
+}
 
 function addAnimeEp(name, ep, host) {
     var defer = P.defer();
-    //sendSMS('Anime Notifier: ' + name + ' ep ' + ep + ' est disponible sur ' + host + '.');
+    toSend.push({"name": name, "ep": ep, "host": host});
     readAnimes().then(function() {
         if (!animes[name])
             animes[name] = {}
@@ -53,12 +92,12 @@ function readAnimes() {
                 });
             } else {
                 defer.reject(err);
-                return defer.promise;
-    }
-        else
-            animes = obj;
+            }
+            else {
+                animes = obj;
+                defer.resolve();
+            }
     });
-    defer.resolve();
     return defer.promise;
 }
 
@@ -76,7 +115,7 @@ function writeAnimes() {
 
 function sendSMS(message) {
     message = encodeURIComponent(message);
-    var req = https.request({
+    https.request({
         hostname: 'smsapi.free-mobile.fr',
         port: 443,
         path: '/sendmsg?user=' + config.SMSUser + '&pass=' + config.SMSPass + '&msg=' + message,
