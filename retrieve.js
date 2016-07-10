@@ -12,7 +12,7 @@ toSend = [];
 function init() {
     var defer = P.defer();
     readAnimes().fail(function(err) {defer.reject();});
-    jsonfile.readFile('./config.json', function(err, obj) {
+    jsonfile.readFile(__dirname + '/./config.json', function(err, obj) {
         if (err)
             defer.reject(err);
         else {
@@ -80,7 +80,7 @@ function addAnimeEp(name, ep, host) {
 
 function readAnimes() {
     var defer = P.defer();
-    jsonfile.readFile('./animes.json', function(err, obj) {
+    jsonfile.readFile(__dirname + '/./animes.json', function(err, obj) {
         if (err)
             if (err.errno === 34) {
                 animes = {};
@@ -102,7 +102,7 @@ function readAnimes() {
 
 function writeAnimes() {
     var defer = P.defer();
-    jsonfile.writeFile('./animes.json', animes, function(err) {
+    jsonfile.writeFile(__dirname + '/./animes.json', animes, function(err) {
         if (err) {
             defer.reject(err);
             return defer.promise;
