@@ -53,6 +53,8 @@ function containsAnime(name, ep, host) {
 }
 
 function sendQueue() {
+    if (toSend.length === 0)
+        return;
     var message = 'Anime Notifier:';
     for (var i in toSend)
         message = message.concat('\n' + toSend[i].name + ' ep ' + toSend[i].ep + ' on ' + toSend[i].host);
@@ -60,6 +62,7 @@ function sendQueue() {
 }
 
 function addAnimeEp(name, ep, host) {
+    console.log(name);
     var defer = P.defer();
     toSend.push({"name": name, "ep": ep, "host": host});
     readAnimes().then(function() {
@@ -102,7 +105,7 @@ function readAnimes() {
 
 function writeAnimes() {
     var defer = P.defer();
-    jsonfile.writeFile(__dirname + '/./animes.json', animes, function(err) {
+    jsonfile.writeFile(__dirname + '/./animes.json', animes, {spaces: 4}, function(err) {
         if (err) {
             defer.reject(err);
             return defer.promise;

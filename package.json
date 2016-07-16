@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "html-to-json": "^0.6.0",
     "jsonfile": "^2.3.1",
     "p-promise": "^0.5.0",
     "rsj": "0.0.4",
