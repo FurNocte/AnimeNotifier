@@ -62,7 +62,6 @@ function sendQueue() {
 }
 
 function addAnimeEp(name, ep, host) {
-    console.log(name);
     var defer = P.defer();
     toSend.push({"name": name, "ep": ep, "host": host});
     readAnimes().then(function() {
@@ -116,6 +115,8 @@ function writeAnimes() {
 }
 
 function sendSMS(message) {
+    if (new Date().getHours() < 8 || new Date().getHours() > 22)
+        return;
     message = encodeURIComponent(message);
     https.request({
         hostname: 'smsapi.free-mobile.fr',
